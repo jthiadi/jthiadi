@@ -30,9 +30,9 @@ I'm an **Electrical Engineering and Computer Science** student at **National Tsi
 </p>
 
 ### Currently Learning
-- 🤖 **Machine Learning** - Deep diving into neural networks and AI algorithms
-- 👁️ **Computer Vision** - Exploring image processing and pattern recognition
-- 🎨 **Advanced UI/UX** - Crafting intuitive and beautiful user experiences
+- 🤖 **Machine Learning**
+- 👁️ **Computer Vision** 
+- 🎨 **Advanced UI/UX** 
 
 ## 🚀 Featured Projects
 
