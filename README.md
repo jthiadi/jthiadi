@@ -57,10 +57,6 @@ I'm an **Electrical Engineering and Computer Science** student at **National Tsi
 ---
 
 <div align="center">
-  <img src="https://komarev.com/ghpvc/?username=YOUR_USERNAME&color=blueviolet&style=flat-square&label=Profile+Views" alt="Profile Views"/>
-</div>
-
-<div align="center">
   
   **"Design is not just what it looks like and feels like. Design is how it works."** - Steve Jobs
   
