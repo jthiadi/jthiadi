@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects | GitHub Portfolio</title>
+    <meta name="description" content="A 3D interactive portfolio showcasing my GitHub projects">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1b2e;
+            --bg-secondary: #252742;
+            --accent-pink: #ffb3c6;
+            --accent-blue: #a5c4e8;
+            --accent-lavender: #c4b5e0;
+            --accent-mint: #b8e0d2;
+            --text-primary: #f0f0f5;
+            --text-secondary: #9ca3af;
+            --card-bg: rgba(37, 39, 66, 0.8);
+            --glow-pink: rgba(255, 179, 198, 0.3);
+            --glow-blue: rgba(165, 196, 232, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .avatar-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-lavender));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 
+                0 0 40px var(--glow-pink),
+                0 0 80px var(--glow-blue);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .robot-eye {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            animation: blink 4s infinite;
+        }
+
+        .robot-eye.left { top: 45px; left: 38px; }
+        .robot-eye.right { top: 45px; right: 38px; }
+
+        .tear {
+            position: absolute;
+            width: 6px;
+            height: 12px;
+            background: linear-gradient(to bottom, var(--accent-blue), transparent);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: tearDrop 3s infinite;
+        }
+
+        .tear.left { top: 58px; left: 42px; }
+        .tear.right { top: 58px; right: 42px; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+
+        @keyframes tearDrop {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 1; }
+            80% { opacity: 1; transform: translateY(15px); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-blue), var(--accent-lavender));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .robot-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(255, 179, 198, 0.2);
+            font-size: 0.85rem;
+            color: var(--accent-pink);
+        }
+
+        .projects-section {
+            padding: 2rem 0;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-lavender));
+            border-radius: 2px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-blue), var(--accent-lavender));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 179, 198, 0.3);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px var(--glow-pink);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-lavender), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(196, 181, 224, 0.15);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--accent-lavender);
+            border: 1px solid rgba(196, 181, 224, 0.2);
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-pink);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: gap 0.3s;
+        }
+
+        .project-link:hover {
+            gap: 0.75rem;
+        }
+
+        .project-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: var(--accent-pink);
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px var(--glow-pink);
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: floatShape 20s infinite;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-pink);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-blue);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-lavender);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, 20px) rotate(180deg); }
+            75% { transform: translate(20px, 30px) rotate(270deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .content { padding: 1rem; }
+            header { padding: 3rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <header>
+            <div class="avatar-container">
+                <div class="avatar">🤖</div>
+                <div class="robot-eye left"></div>
+                <div class="robot-eye right"></div>
+                <div class="tear left"></div>
+                <div class="tear right"></div>
+            </div>
+            <h1>Your Name Here</h1>
+            <p class="subtitle">A melancholic robot developer crafting digital experiences, one commit at a time.</p>
+            <div class="robot-badge">
+                <span>⚡</span>
+                <span>System Status: Dreaming in Code</span>
+            </div>
+        </header>
+
+        <section class="projects-section">
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="projects-grid">
+                <!-- Project Card 1 -->
+                <article class="project-card">
+                    <div class="project-icon">🌸</div>
+                    <h3 class="project-title">Project Alpha</h3>
+                    <p class="project-description">A beautiful web application that does amazing things. Replace this with your actual project description.</p>
+                    <div class="project-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">TypeScript</span>
+                        <span class="tag">Node.js</span>
+                    </div>
+                    <a href="https://github.com/yourusername/project-alpha" class="project-link">
+                        View Project
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </article>
+
+                <!-- Project Card 2 -->
+                <article class="project-card">
+                    <div class="project-icon">💜</div>
+                    <h3 class="project-title">Project Beta</h3>
+                    <p class="project-description">Another fantastic project showcasing your skills. Update with your real projects.</p>
+                    <div class="project-tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Machine Learning</span>
+                    </div>
+                    <a href="https://github.com/yourusername/project-beta" class="project-link">
+                        View Project
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </article>
+
+                <!-- Project Card 3 -->
+                <article class="project-card">
+                    <div class="project-icon">🔮</div>
+                    <h3 class="project-title">Project Gamma</h3>
+                    <p class="project-description">Your third project description goes here. Make it compelling and descriptive.</p>
+                    <div class="project-tags">
+                        <span class="tag">Vue.js</span>
+                        <span class="tag">GraphQL</span>
+                        <span class="tag">PostgreSQL</span>
+                    </div>
+                    <a href="https://github.com/yourusername/project-gamma" class="project-link">
+                        View Project
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </article>
+
+                <!-- Project Card 4 -->
+                <article class="project-card">
+                    <div class="project-icon">🌙</div>
+                    <h3 class="project-title">Project Delta</h3>
+                    <p class="project-description">One more amazing project to showcase. Customize everything to match your work.</p>
+                    <div class="project-tags">
+                        <span class="tag">Rust</span>
+                        <span class="tag">WebAssembly</span>
+                    </div>
+                    <a href="https://github.com/yourusername/project-delta" class="project-link">
+                        View Project
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <footer>
+            <div class="social-links">
+                <a href="https://github.com/yourusername" class="social-link" aria-label="GitHub">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                <a href="https://twitter.com/yourusername" class="social-link" aria-label="Twitter">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a>
+                <a href="https://linkedin.com/in/yourusername" class="social-link" aria-label="LinkedIn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                </a>
+            </div>
+            <p>Crafted with 💜 and a touch of melancholy</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">© 2024 Your Name. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js 3D Background
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Create floating geometric shapes (robot parts / hirono-inspired)
+        const shapes = [];
+        const pastelColors = [0xffb3c6, 0xa5c4e8, 0xc4b5e0, 0xb8e0d2];
+
+        // Floating cubes (robot-like)
+        for (let i = 0; i < 15; i++) {
+            const geometry = new THREE.BoxGeometry(
+                Math.random() * 0.5 + 0.2,
+                Math.random() * 0.5 + 0.2,
+                Math.random() * 0.5 + 0.2
+            );
+            const material = new THREE.MeshPhongMaterial({
+                color: pastelColors[Math.floor(Math.random() * pastelColors.length)],
+                transparent: true,
+                opacity: 0.6,
+                shininess: 100
+            });
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.set(
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 10 - 5
+            );
+            cube.userData = {
+                rotationSpeed: {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02
+                },
+                floatSpeed: Math.random() * 0.5 + 0.5,
+                floatOffset: Math.random() * Math.PI * 2
+            };
+            shapes.push(cube);
+            scene.add(cube);
+        }
+
+        // Floating spheres (tear drops)
+        for (let i = 0; i < 10; i++) {
+            const geometry = new THREE.SphereGeometry(Math.random() * 0.3 + 0.1, 16, 16);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xa5c4e8,
+                transparent: true,
+                opacity: 0.5,
+                shininess: 150
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 8 - 3
+            );
+            sphere.userData = {
+                floatSpeed: Math.random() * 0.3 + 0.2,
+                floatOffset: Math.random() * Math.PI * 2,
+                originalY: sphere.position.y
+            };
+            shapes.push(sphere);
+            scene.add(sphere);
+        }
+
+        // Torus shapes (robot joints)
+        for (let i = 0; i < 5; i++) {
+            const geometry = new THREE.TorusGeometry(0.3, 0.1, 8, 20);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xc4b5e0,
+                transparent: true,
+                opacity: 0.4,
+                shininess: 80
+            });
+            const torus = new THREE.Mesh(geometry, material);
+            torus.position.set(
+                (Math.random() - 0.5) * 18,
+                (Math.random() - 0.5) * 18,
+                (Math.random() - 0.5) * 6 - 4
+            );
+            torus.userData = {
+                rotationSpeed: {
+                    x: (Math.random() - 0.5) * 0.03,
+                    y: (Math.random() - 0.5) * 0.03
+                }
+            };
+            shapes.push(torus);
+            scene.add(torus);
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0xffb3c6, 1, 50);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xa5c4e8, 1, 50);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        camera.position.z = 8;
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = Date.now() * 0.001;
+
+            shapes.forEach((shape, index) => {
+                if (shape.userData.rotationSpeed) {
+                    shape.rotation.x += shape.userData.rotationSpeed.x;
+                    shape.rotation.y += shape.userData.rotationSpeed.y;
+                }
+
+                if (shape.userData.floatSpeed) {
+                    const floatY = Math.sin(time * shape.userData.floatSpeed + shape.userData.floatOffset) * 0.5;
+                    if (shape.userData.originalY !== undefined) {
+                        shape.position.y = shape.userData.originalY + floatY;
+                    } else {
+                        shape.position.y += Math.sin(time * shape.userData.floatSpeed) * 0.002;
+                    }
+                }
+            });
+
+            // Subtle camera movement based on mouse
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
+            camera.position.y += (mouseY * 0.5 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
